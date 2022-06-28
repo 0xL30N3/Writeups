@@ -19,6 +19,7 @@ In this case, "set" probably means the values for A,B and C is 1.
 I assumed we need to find which letter's values are set to 1.  
 The first thing we need to do is understand logic gates.  
 I referenced this image.  
+
 ![logic gates](https://github.com/0xL30N3/Writeups/blob/main/Images/logic_gates.png?raw=true)  
 The output for th logic lock is 1.  
 We need to trace back from the output to the inputs.  
