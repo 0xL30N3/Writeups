@@ -1,7 +1,7 @@
 ## Challenge Name: SSTI Golf
-Category: Web
-Points: 100
-Solves: 223
+Category: Web  
+Points: 100  
+Solves: 223  
 
 Challenge Description:  
 __Just in case you didn't get enough golf with the other challenge.  
