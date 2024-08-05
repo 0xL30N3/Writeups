@@ -55,7 +55,8 @@ After that, it removes the tar file. Then, it appends all file names onto a pyth
 
 The main problem I noticed was the fact that the application does not sanitize the filename, which is user input, before rendering it which can cause Server Side Template Injection(SSTI)
 
-**What is SSTI?**
+**What is SSTI?**<br/>
+
 [Server Side Template Injection](https://portswigger.net/web-security/server-side-template-injection) is a type of vulnerability found in template engines where an attacker is able to use native template syntax to inject a malicious payload into a template, which is then executed server-side
 
 I can quickly test out this hypothesis by creating a file with the name `{{config}}` and compressing it into a tarfile(the name doesn't matter here). The Jinja2 template engine SSTI payload `{{config}}` calls the python object `config` where you can find all configured env variables. After we upload the tar file and go check the uploaded files, we can see the payload worked and the site is now giving us all configured env vars.
@@ -65,19 +66,19 @@ I can quickly test out this hypothesis by creating a file with the name `{{confi
 Now that we know SSTI works, we can figure out the payload we're gonna use to read the flag. I'm using the [shortest possible payload](https://twitter.com/podalirius_/status/1655970628648697860) known to achieve RCE in jinja2, 
 `{{lipsum.__globals__.os.popen("ls").read()}}`. 
 
-`{{ ... }}`: These are used by Jinja2 to indicate expression that should be evaluated and rendered. 
-[lipsum](https://jinja.palletsprojects.com/en/2.11.x/templates/#lipsum): `lipsum` is a jinja2 function used to generate lorem ipsum
-`__globals__`: lipsum can access the global namespace which can be used to call global variables and functions
-[os](https://docs.python.org/3/library/os.html): `os` is a python module that we can use to run OS commands, allowing us to achieve RCE.
-[popen("ls")](https://docs.python.org/3/library/os.html#os.popen):  This is the function from the os module that we're gonna use to execute the os command `ls` which will give us all file names in the current directory as an open file object.
-`.read()`:  This will return the open file object as a string
+`{{ ... }}`: These are used by Jinja2 to indicate expression that should be evaluated and rendered. <br/>
+[lipsum](https://jinja.palletsprojects.com/en/2.11.x/templates/#lipsum): `lipsum` is a jinja2 function used to generate lorem ipsum<br/>
+`__globals__`: lipsum can access the global namespace which can be used to call global variables and functions<br/>
+[os](https://docs.python.org/3/library/os.html): `os` is a python module that we can use to run OS commands, allowing us to achieve RCE.<br/>
+[popen("ls")](https://docs.python.org/3/library/os.html#os.popen):  This is the function from the os module that we're gonna use to execute the os command `ls` which will give us all file names in the current directory as an open file object.<br/>
+`.read()`:  This will return the open file object as a string<br/>
 
-We can then upload the tar file which has the file with the payload name of `{{lipsum.__globals__.os.popen("ls").read()}}`.  This gives us all files in the current directory as expected.
+We can then upload the tar file which has the file with the payload name of `{{lipsum.__globals__.os.popen("ls").read()}}`.  This gives us all files in the current directory as expected.<br/>
 
 ![ls](https://raw.githubusercontent.com/0xL30N3/Writeups/main/Images/ls.png)
 
 Now we can see the flag file `flag_15b726a24e04cc6413cb15b9d91e548948dac073b85c33f82495b10e9efe2c6e.txt`. All we gotta do now is to `cat` the flag.
-We create a new file with the payload `{{lipsum.__globals__.os.popen("cat flag*").read()}}` as the filename and compress it into a tar file. Finally, after uploading it, we can view the flag
+We create a new file with the payload `{{lipsum.__globals__.os.popen("cat flag*").read()}}` as the filename and compress it into a tar file. Finally, after uploading it, we can view the flag.
 
 ![config](https://raw.githubusercontent.com/0xL30N3/Writeups/main/Images/flag.png)
 
