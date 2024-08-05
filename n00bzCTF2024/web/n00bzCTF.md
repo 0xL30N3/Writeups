@@ -60,7 +60,7 @@ The main problem I noticed was the fact that the application does not sanitize t
 
 I can quickly test out this hypothesis by creating a file with the name `{{config}}` and compressing it into a tarfile(the name doesn't matter here). The Jinja2 template engine SSTI payload `{{config}}` calls the python object `config` where you can find all configured env variables. After we upload the tar file and go check the uploaded files, we can see the payload worked and the site is now giving us all configured env vars.
 
-![config](ssti.png)
+![config](https://raw.githubusercontent.com/0xL30N3/Writeups/main/Images/ssti.png)
 
 Now that we know SSTI works, we can figure out the payload we're gonna use to read the flag. I'm using the [shortest possible payload](https://twitter.com/podalirius_/status/1655970628648697860) known to achieve RCE in jinja2, 
 `{{lipsum.__globals__.os.popen("ls").read()}}`. 
@@ -74,11 +74,12 @@ Now that we know SSTI works, we can figure out the payload we're gonna use to re
 
 We can then upload the tar file which has the file with the payload name of `{{lipsum.__globals__.os.popen("ls").read()}}`.  This gives us all files in the current directory as expected.
 
-![ls](ls.png)
+![ls](https://raw.githubusercontent.com/0xL30N3/Writeups/main/Images/ls.png)
 
 Now we can see the flag file `flag_15b726a24e04cc6413cb15b9d91e548948dac073b85c33f82495b10e9efe2c6e.txt`. All we gotta do now is to `cat` the flag.
 We create a new file with the payload `{{lipsum.__globals__.os.popen("cat flag*").read()}}` as the filename and compress it into a tar file. Finally, after uploading it, we can view the flag
-![config](flag.png)
+
+![config](https://raw.githubusercontent.com/0xL30N3/Writeups/main/Images/flag.png)
 
 #### The Fix?
 A possible fix I see is to sanitize the filenames by removing special characters like `{`, `}` and `%`. 
