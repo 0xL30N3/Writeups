@@ -31,7 +31,7 @@ elif request.method == 'POST':
 	except:
 		return render_template_string("<p>Failed to extract file!</p>")
 ```
-When you upload a file(POST request), it checks the filename of the file that you uploaded and checks to see if the filename ends with `.tar`. Then, It's gonna take the name of the tar file and encrypt it using sha256, which becomes the variable `name`.  Then, it's gonna create a directory under the server's `./uploads/` using the sha256 encrypted name. Then, it uploads the tar file on that directory with the same name(sha256 encrypted). After that, it tries to extract the content from the tar file and places the extracted content in the same directory as the tar file. Then, if it succeeds, it provides a url to `/view/{name}` for you to check your files. Viewing the files extracted from the tar file is handled by this code snippet:
+When you upload a file(POST request), it checks the filename of the file that you uploaded and checks to see if the filename ends with `.tar`. Then, it's gonna create a random SHA256 string, which becomes the variable `name`.  Then, it's gonna create a directory under the server's `./uploads/` using the sha256 encrypted name. Then, it uploads the tar file on that directory with the same name(sha256). After that, it tries to extract the content from the tar file and places the extracted content in the same directory as the tar file. Then, if it succeeds, it provides a url to `/view/{name}` for you to check your files. Viewing the files extracted from the tar file is handled by this code snippet:
 
 ```python
 @app.route('/view/<name>')
@@ -50,7 +50,7 @@ def view(name):
 ```
 
 The webapp gets all files under the directory using `files = os.listdir(f"./uploads/{name}")`. 
-After that, it removes the tar file. Then, it appends all file names onto a python variable named `out` .  This is done using `out += f'<a href="/read/{name}/{i}">{i}</a>'`. where i is the filename of files inside the tar file. Then, the entirety of the `out` string which contains the filenames of files inside the tar file is gonna get rendered using the `render_template_string` function which is a function of the `jinja2` template engine which is used by `flask`.
+Then, it appends all file names onto a python variable named `out` .  This is done using `out += f'<a href="/read/{name}/{i}">{i}</a>'`. where i is the filename of files inside the tar file. Then, the entirety of the `out` string which contains the filenames of files inside the tar file is gonna get rendered using the `render_template_string` function which is a function of the `jinja2` template engine which is used by `flask`.
 #### The problem
 
 The main problem I noticed was the fact that the application does not sanitize the filename, which is user input, before rendering it which can cause Server Side Template Injection(SSTI)
